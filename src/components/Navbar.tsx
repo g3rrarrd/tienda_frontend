@@ -61,7 +61,9 @@ export default function Navbar(){
     const pathname = usePathname();
 
     const links = [
-        {name : 'Inventario', href: '/inventario'}
+        {name : 'Productos', href: '/producto'},
+        {name : 'Venta', href: '/venta'},
+        {name : 'Inventario', href: '/inv-lista'}
     ]
 
     return (

@@ -1,34 +1,43 @@
-import { useEffect, useState } from 'react';
-import { fetchProductoInventario } from '@/lib/producto';
+"use client";
 
-interface ProductoInfoProps {
-  producto: {
-    codigo_inventario: string;
-  };
-}
+import { useEffect, useState } from "react";
+import { fetchProducto } from "@/lib/producto";
+import ProductoInventarioInfo from "./InventarioLista";
 
-export default function ProductoInfo({ producto }: ProductoInfoProps) {
+export default function ProductoInfo() {
   const [productos, setProductos] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<any | null>(null);
 
   useEffect(() => {
-    if (!producto?.codigo_inventario) return;
+    async function loadProductos() {
+      const data = await fetchProducto();
+      setProductos(data);
+    }
 
-    fetchProductoInventario(producto.codigo_inventario)
-      .then(setProductos)
-      .catch((err) => setError(err.message));
-  }, [producto]);
-
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!productos.length) return <p>No hay productos en este inventario.</p>;
+    loadProductos();
+  }, []);
 
   return (
-    <ul className="mt-4 space-y-2">
-      {productos.map((p) => (
-        <li key={p.codigo_producto} className="border p-2 rounded bg-white shadow-sm">
-          <strong>{p.tipo_producto}</strong> — Talla: {p.talla} | Color: {p.color}
-        </li>
-      ))}
-    </ul>
+    <div className="p-4">
+      <div className="grid grid-cols-3 gap-4">
+        {productos.map((prod) => (
+          <div key={prod.codigo_producto} className="border p-4 rounded-lg">
+            <h3 className="font-bold">{prod.nombre}</h3>
+            <p>producto: {prod.tipo_producto}</p>
+            <p>precio_venta: {prod.precio_venta}</p>
+            <button
+              onClick={() => setProductoSeleccionado(prod)}
+              className="bg-blue-500 text-white px-3 py-1 rounded mt-2"
+            >
+              Ver detalles
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {productoSeleccionado && (
+        <ProductoInventarioInfo producto={productoSeleccionado} />
+      )}
+    </div>
   );
 }
