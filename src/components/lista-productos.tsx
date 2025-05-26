@@ -17,8 +17,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useCart } from "../components/context/cart-context"
+import { useCart } from "./context/cart-context"
 import { CartDrawer } from "../components/ui/cart-drawer"
+import { ProductDetailsModal } from "./product-details-modal"
 
 // Datos de ejemplo de productos
 const products = [
@@ -33,6 +34,25 @@ const products = [
     reviews: 128,
     inStock: true,
     featured: true,
+    description: "Smartphone de última generación con cámara profesional y procesador de alto rendimiento.",
+    colors: ["#000000", "#0066CC", "#CC6600"],
+    specs: [
+      {
+        name: "Almacenamiento",
+        options: ["128GB", "256GB", "512GB"],
+        required: true,
+      },
+      {
+        name: "Color",
+        options: ["Negro", "Azul", "Dorado"],
+        required: true,
+      },
+      {
+        name: "Memoria RAM",
+        options: ["8GB", "12GB"],
+        required: false,
+      },
+    ],
   },
   {
     id: 2,
@@ -44,6 +64,30 @@ const products = [
     reviews: 89,
     inStock: true,
     featured: false,
+    description: "Laptop gaming con iluminación RGB y tarjeta gráfica dedicada para máximo rendimiento.",
+    colors: ["#000000", "#FF0000"],
+    specs: [
+      {
+        name: "Procesador",
+        options: ["Intel i5", "Intel i7", "AMD Ryzen 7"],
+        required: true,
+      },
+      {
+        name: "Tarjeta Gráfica",
+        options: ["RTX 3060", "RTX 3070", "RTX 4060"],
+        required: true,
+      },
+      {
+        name: "RAM",
+        options: ["16GB", "32GB"],
+        required: true,
+      },
+      {
+        name: "Almacenamiento",
+        options: ["512GB SSD", "1TB SSD", "1TB SSD + 1TB HDD"],
+        required: false,
+      },
+    ],
   },
   {
     id: 3,
@@ -56,6 +100,20 @@ const products = [
     reviews: 256,
     inStock: true,
     featured: true,
+    description: "Auriculares inalámbricos con cancelación de ruido activa y hasta 30 horas de batería.",
+    colors: ["#000000", "#FFFFFF", "#0066CC"],
+    specs: [
+      {
+        name: "Color",
+        options: ["Negro", "Blanco", "Azul"],
+        required: true,
+      },
+      {
+        name: "Cancelación de ruido",
+        options: ["Con ANC", "Sin ANC"],
+        required: false,
+      },
+    ],
   },
   {
     id: 4,
@@ -67,6 +125,9 @@ const products = [
     reviews: 45,
     inStock: true,
     featured: false,
+    description: "Camiseta deportiva de material transpirable, perfecta para entrenamientos y actividades físicas.",
+    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    colors: ["#000000", "#FFFFFF", "#FF0000", "#0066CC"],
   },
   {
     id: 5,
@@ -79,6 +140,9 @@ const products = [
     reviews: 178,
     inStock: false,
     featured: true,
+    description: "Zapatillas de running con tecnología de amortiguación avanzada y suela antideslizante.",
+    sizes: ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"],
+    colors: ["#000000", "#FFFFFF", "#FF0000"],
   },
   {
     id: 6,
@@ -90,6 +154,8 @@ const products = [
     reviews: 92,
     inStock: true,
     featured: false,
+    description: "Cafetera automática con molinillo integrado y múltiples opciones de preparación.",
+    colors: ["#000000", "#C0C0C0"],
   },
   {
     id: 7,
@@ -102,6 +168,8 @@ const products = [
     reviews: 67,
     inStock: true,
     featured: false,
+    description: "Set de 3 sartenes antiadherentes de diferentes tamaños, aptas para todo tipo de cocinas.",
+    colors: ["#000000", "#FF0000"],
   },
   {
     id: 8,
@@ -113,6 +181,7 @@ const products = [
     reviews: 134,
     inStock: true,
     featured: false,
+    description: "Libro de recetas con más de 200 platos de cocina internacional, desde principiantes hasta expertos.",
   },
 ]
 
@@ -125,6 +194,8 @@ export default function ProductList() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [priceRange, setPriceRange] = useState<string[]>([])
   const [showInStockOnly, setShowInStockOnly] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<(typeof products)[0] | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const { addItem, isInCart, getItemQuantity } = useCart()
 
@@ -194,6 +265,11 @@ export default function ProductList() {
       category: product.category,
       inStock: product.inStock,
     })
+  }
+
+  const handleProductClick = (product: (typeof products)[0]) => {
+    setSelectedProduct(product)
+    setIsModalOpen(true)
   }
 
   return (
@@ -332,7 +408,8 @@ export default function ProductList() {
             return (
               <Card
                 key={product.id}
-                className={`group hover:shadow-lg transition-shadow ${viewMode === "list" ? "flex flex-row" : ""}`}
+                className={`group hover:shadow-lg transition-shadow cursor-pointer ${viewMode === "list" ? "flex flex-row" : ""}`}
+                onClick={() => handleProductClick(product)}
               >
                 <div className={viewMode === "list" ? "w-48 flex-shrink-0" : ""}>
                   <div className="relative overflow-hidden rounded-t-lg">
@@ -413,6 +490,7 @@ export default function ProductList() {
           })}
         </div>
       )}
+      <ProductDetailsModal product={selectedProduct} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   )
 }
